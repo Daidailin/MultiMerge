@@ -1,0 +1,229 @@
+直接按这 3 处改，先别写文档。你当前的问题就是：CLI 语义不一致、legacy 没把 tolerance 传下去、stream 根本没做 tolerance 判断。
+main
+
+ 
+DataFileMerger
+
+ 
+StreamMergeEngine
+
+
+1）先改 main.cpp
+你现在的 -t 文案写的是“毫秒，0 表示不限制”，但内部配置字段叫 timeToleranceUs，而且 0 / -1 语义和你想要的冻结语义不一致。最小改法就是：CLI 直接用微秒，并统一成：
+
+-1 = 无限制
+
+0 = 精确匹配
+
+>0 = 容差微秒数
+
+另外你帮助里还写了 none，但解析实际上只接受 nearest/linear，未知值会回退到 nearest，这个也要顺手修掉。
+main
+
+
+把这几段替换掉：
+
+// 旧：int tolerance = 0;
+qint64 toleranceUs = -1;
+
+// 旧帮助文案
+QCommandLineOption toleranceOption(
+    QStringList() << "t" << "tolerance",
+    "时间容差（微秒），-1 表示无限制，0 表示精确匹配（默认：-1）",
+    "microseconds",
+    "-1"
+);
+parser.addOption(toleranceOption);
+// 解析参数
+} else if (arg == "-t" && i + 1 < args.size()) {
+    bool ok = false;
+    toleranceUs = args[++i].toLongLong(&ok);
+    if (!ok || toleranceUs < -1) {
+        qWarning() << "错误：--tolerance 必须是 -1 或 >= 0 的整数（单位：微秒）";
+        return 1;
+    }
+}
+// 打印解析结果
+qDebug() << "  时间容差(us):" << toleranceUs;
+// config 转换
+config.timeToleranceUs = toleranceUs;
+config.verbose = verbose;
+// streamConfig 转换
+streamConfig.timeToleranceUs = toleranceUs;
+// 打印配置信息
+if (config.timeToleranceUs < 0) {
+    qDebug() << "时间容差: unlimited";
+} else {
+    qDebug() << "时间容差:" << config.timeToleranceUs << "us";
+}
+然后把插值帮助文案里的 none 删掉，先只保留你真正支持的两个值：
+
+QCommandLineOption interpolationOption(
+    QStringList() << "i" << "interpolation",
+    "插值方法：nearest（最近邻）, linear（线性）（默认：nearest）",
+    "method",
+    "nearest"
+);
+2）再改 DataFileMerger.cpp
+这里是最简单的一刀。你现在调用 Interpolator::interpolate() 时，没传 m_config.timeToleranceUs，所以 legacy 实际上一直在走默认 tolerance。
+DataFileMerger
+
+
+把这一段：
+
+InterpolationResult result = Interpolator::interpolate(
+    otherFile.timePoints,
+    columnData,
+    targetTime,
+    m_config.interpolation
+);
+改成：
+
+InterpolationResult interpResult = Interpolator::interpolate(
+    otherFile.timePoints,
+    columnData,
+    targetTime,
+    m_config.interpolation,
+    m_config.timeToleranceUs
+);
+下面对应也一起改变量名：
+
+if (!interpResult.isValid) {
+    rowData << "NaN";
+} else {
+    rowData << QString::number(interpResult.value, 'g', 10);
+}
+我建议顺手把局部变量从 result 改成 interpResult，免得和函数参数 MergeResult& result 重名，看着容易乱。
+DataFileMerger
+
+
+3）最后改 StreamMergeEngine.cpp
+这是核心。你现在 interpolateBetweenRows()、interpolateValue()、fallback 路径，全都没有 tolerance 参数，也没有任何超容差返回 NaN 的逻辑。
+StreamMergeEngine
+
+
+第一步：给 helper 加 tolerance 参数
+先把前面的声明改掉：
+
+static QString interpolateBetweenRows(const StreamRow& lower,
+                                     const StreamRow& upper,
+                                     int sourceColumnIndex,
+                                     qint64 targetNs,
+                                     StreamMergeEngine::InterpolationMethod method,
+                                     qint64 toleranceNs);
+
+static QString interpolateValue(const StreamCursor& cursor,
+                                int sourceColumnIndex,
+                                qint64 targetNs,
+                                StreamMergeEngine::InterpolationMethod method,
+                                qint64 toleranceNs);
+再补一个小工具函数：
+
+static bool withinTolerance(qint64 distanceNs, qint64 toleranceNs)
+{
+    return toleranceNs < 0 || distanceNs <= toleranceNs;
+}
+第二步：改 interpolateValue
+static QString interpolateValue(const StreamCursor& cursor,
+                                int sourceColumnIndex,
+                                qint64 targetNs,
+                                StreamMergeEngine::InterpolationMethod method,
+                                qint64 toleranceNs)
+{
+    return interpolateBetweenRows(cursor.lower,
+                                  cursor.upper,
+                                  sourceColumnIndex,
+                                  targetNs,
+                                  method,
+                                  toleranceNs);
+}
+第三步：重写 interpolateBetweenRows
+直接按这个最小版本改：
+
+static QString interpolateBetweenRows(const StreamRow& lower,
+                                     const StreamRow& upper,
+                                     int sourceColumnIndex,
+                                     qint64 targetNs,
+                                     StreamMergeEngine::InterpolationMethod method,
+                                     qint64 toleranceNs)
+{
+    const auto lowerValue = [&]() { return safeCell(lower.cells, sourceColumnIndex); };
+    const auto upperValue = [&]() { return safeCell(upper.cells, sourceColumnIndex); };
+
+    if (!lower.valid && !upper.valid) {
+        return QStringLiteral("NaN");
+    }
+
+    if (!lower.valid) {
+        const qint64 du = qAbs(upper.timeNs - targetNs);
+        return withinTolerance(du, toleranceNs) ? upperValue() : QStringLiteral("NaN");
+    }
+
+    if (!upper.valid) {
+        const qint64 dl = qAbs(targetNs - lower.timeNs);
+        return withinTolerance(dl, toleranceNs) ? lowerValue() : QStringLiteral("NaN");
+    }
+
+    if (lower.timeNs == upper.timeNs) {
+        const qint64 d = qAbs(targetNs - lower.timeNs);
+        return withinTolerance(d, toleranceNs) ? upperValue() : QStringLiteral("NaN");
+    }
+
+    const qint64 dl = qAbs(targetNs - lower.timeNs);
+    const qint64 du = qAbs(upper.timeNs - targetNs);
+
+    if (method == StreamMergeEngine::InterpolationMethod::Nearest) {
+        const qint64 nearestDist = qMin(dl, du);
+        if (!withinTolerance(nearestDist, toleranceNs)) {
+            return QStringLiteral("NaN");
+        }
+        return (dl <= du) ? lowerValue() : upperValue();
+    }
+
+    // linear
+    if (!withinTolerance(dl, toleranceNs) || !withinTolerance(du, toleranceNs)) {
+        return QStringLiteral("NaN");
+    }
+
+    bool ok1 = false;
+    bool ok2 = false;
+    const double v1 = lowerValue().toDouble(&ok1);
+    const double v2 = upperValue().toDouble(&ok2);
+
+    if (!ok1 || !ok2) {
+        // 数值列解析失败时，退化为 nearest，但仍然受 tolerance 限制
+        const qint64 nearestDist = qMin(dl, du);
+        if (!withinTolerance(nearestDist, toleranceNs)) {
+            return QStringLiteral("NaN");
+        }
+        return (dl <= du) ? lowerValue() : upperValue();
+    }
+
+    const double ratio =
+        static_cast<double>(targetNs - lower.timeNs) /
+        static_cast<double>(upper.timeNs - lower.timeNs);
+
+    const double interpolated = v1 + (v2 - v1) * ratio;
+    return QString::number(interpolated, 'g', 15);
+}
+第四步：在 mergeStreaming() 里传进去
+先算一次：
+
+const qint64 toleranceNs =
+    (m_config.timeToleranceUs < 0) ? -1 : (m_config.timeToleranceUs * 1000);
+然后把 streaming 路径改成：
+
+rowData << interpolateValue(cursor,
+                            sourceCol,
+                            targetNs,
+                            m_config.interpolationMethod,
+                            toleranceNs);
+fallback 路径改成：
+
+rowData << interpolateBetweenRows(lower,
+                                  upper,
+                                  sourceCol,
+                                  targetNs,
+                                  m_config.interpolationMethod,
+                                  toleranceNs);
+这样 stream 才会真正遵循和 Interpolator 一样的三段语义：-1 无限制、0 精确匹配、>0 容差窗口
