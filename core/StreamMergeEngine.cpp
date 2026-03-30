@@ -1,4 +1,4 @@
-﻿﻿#include <QDir>
+﻿﻿﻿﻿#include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>

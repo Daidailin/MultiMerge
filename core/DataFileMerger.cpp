@@ -1,4 +1,4 @@
-﻿﻿#include "DataFileMerger.h"
+﻿﻿﻿﻿#include "DataFileMerger.h"
 #include "io/FileReader.h"
 #include <QFile>
 #include <QTextStream>
