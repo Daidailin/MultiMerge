@@ -1,4 +1,4 @@
-﻿﻿﻿﻿#include <QDir>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿#include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>
@@ -236,12 +236,19 @@ static QString interpolateValue(const StreamCursor& cursor,
 static QStringList buildOutputHeaders(const QVector<StreamMergeEngine::FileMetadata>& metadatas)
 {
     QStringList headers;
+    QSet<QString> usedNames;
+    
     headers << QStringLiteral("Time");
+    usedNames.insert(QStringLiteral("Time"));
 
     for (const auto& md : metadatas) {
         for (const QString& header : md.headers) {
-            if (!isTimeColumnName(header) && !header.trimmed().isEmpty()) {
-                headers << header.trimmed();
+            QString trimmedHeader = header.trimmed();
+            if (!isTimeColumnName(header) && !trimmedHeader.isEmpty()) {
+                if (!usedNames.contains(trimmedHeader)) {
+                    headers << trimmedHeader;
+                    usedNames.insert(trimmedHeader);
+                }
             }
         }
     }
@@ -395,17 +402,32 @@ static QString interpolateBetweenRows(const StreamRow& lower,
 
     if (!lower.valid) {
         const qint64 du = qAbs(upper.timeNs - targetNs);
-        return withinTolerance(du, toleranceNs) ? upperValue() : QStringLiteral("NaN");
+        if (!withinTolerance(du, toleranceNs)) {
+            return QStringLiteral("NaN");
+        }
+        bool ok = false;
+        upperValue().toDouble(&ok);
+        return ok ? upperValue() : QStringLiteral("NaN");
     }
 
     if (!upper.valid) {
         const qint64 dl = qAbs(targetNs - lower.timeNs);
-        return withinTolerance(dl, toleranceNs) ? lowerValue() : QStringLiteral("NaN");
+        if (!withinTolerance(dl, toleranceNs)) {
+            return QStringLiteral("NaN");
+        }
+        bool ok = false;
+        lowerValue().toDouble(&ok);
+        return ok ? lowerValue() : QStringLiteral("NaN");
     }
 
     if (lower.timeNs == upper.timeNs) {
         const qint64 d = qAbs(targetNs - lower.timeNs);
-        return withinTolerance(d, toleranceNs) ? upperValue() : QStringLiteral("NaN");
+        if (!withinTolerance(d, toleranceNs)) {
+            return QStringLiteral("NaN");
+        }
+        bool ok = false;
+        upperValue().toDouble(&ok);
+        return ok ? upperValue() : QStringLiteral("NaN");
     }
 
     const qint64 dl = qAbs(targetNs - lower.timeNs);
@@ -416,7 +438,10 @@ static QString interpolateBetweenRows(const StreamRow& lower,
         if (!withinTolerance(nearestDist, toleranceNs)) {
             return QStringLiteral("NaN");
         }
-        return (dl <= du) ? lowerValue() : upperValue();
+        QString value = (dl <= du) ? lowerValue() : upperValue();
+        bool ok = false;
+        value.toDouble(&ok);
+        return ok ? value : QStringLiteral("NaN");
     }
 
     // linear
@@ -430,12 +455,8 @@ static QString interpolateBetweenRows(const StreamRow& lower,
     const double v2 = upperValue().toDouble(&ok2);
 
     if (!ok1 || !ok2) {
-        // 数值转换失败时，回退为 nearest，但仍需 tolerance 检查
-        const qint64 nearestDist = qMin(dl, du);
-        if (!withinTolerance(nearestDist, toleranceNs)) {
-            return QStringLiteral("NaN");
-        }
-        return (dl <= du) ? lowerValue() : upperValue();
+        // 数值转换失败时返回 NaN
+        return QStringLiteral("NaN");
     }
 
     const double ratio =
@@ -973,7 +994,9 @@ bool StreamMergeEngine::mergeStreaming(const QVector<FileMetadata>& metadatas,
         QStringList rowData;
         rowData.reserve(outputHeaders.size());
 
-        rowData << safeCell(baseRow.cells, 0);
+        // 统一时间格式输出
+        TimeMerge::TimePoint timePoint(targetNs);
+        rowData << timePoint.toString();
 
         for (int sourceCol : base.dataColumnIndices) {
             rowData << safeCell(baseRow.cells, sourceCol);

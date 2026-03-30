@@ -51,8 +51,8 @@ signals:
 private:
     MergeConfig m_config;
     bool m_cancelled;
-    
-    void writeOutput(const QString& outputFile,
+  // 写入输出文件
+    bool writeOutput(const QString& outputFile,
                     const DataFile& timeAxisFile,
                     const QVector<DataFile>& otherFiles,
                     MergeResult& result);

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿#include "DataFileMerger.h"
+﻿﻿﻿﻿﻿﻿﻿﻿#include "DataFileMerger.h"
 #include "io/FileReader.h"
 #include <QFile>
 #include <QTextStream>
@@ -81,11 +81,17 @@ MergeResult DataFileMerger::merge(const QVector<QString>& inputFiles,
     emit statusMessage("正在合并数据...");
     
     // ==================== 步骤 3：写入输出文件 ====================
-    writeOutput(outputFile, timeAxisFile, otherFiles, result);
+    bool writeSuccess = writeOutput(outputFile, timeAxisFile, otherFiles, result);
     
     // 检查是否被取消
     if (m_cancelled) {
         result.warnings << "操作已取消";
+        return result;
+    }
+    
+    // 检查写入是否成功
+    if (!writeSuccess) {
+        result.success = false;
         return result;
     }
     
@@ -103,7 +109,7 @@ MergeResult DataFileMerger::merge(const QVector<QString>& inputFiles,
 void DataFileMerger::cancel() {
     m_cancelled = true;
 }
-void DataFileMerger::writeOutput(const QString& outputFile,
+bool DataFileMerger::writeOutput(const QString& outputFile,
                                  const DataFile& timeAxisFile,
                                  const QVector<DataFile>& otherFiles,
                                  MergeResult& result) {
@@ -111,7 +117,7 @@ void DataFileMerger::writeOutput(const QString& outputFile,
     QFile file(outputFile);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         result.warnings << QString("无法创建输出文件：%1").arg(outputFile);
-        return;
+        return false;
     }
     
     // 创建文本流并设置编码
@@ -130,7 +136,7 @@ void DataFileMerger::writeOutput(const QString& outputFile,
         // 检查是否被取消
         if (m_cancelled) {
             file.close();
-            return;
+            return false;
         }
         
         QVector<QString> rowData;  // 当前行的数据
@@ -218,6 +224,7 @@ void DataFileMerger::writeOutput(const QString& outputFile,
     // 关闭文件
     file.close();
     result.mergedRows = totalRows;  // 记录合并行数
+    return true;
 }
 
 QVector<QString> DataFileMerger::generateOutputHeaders(

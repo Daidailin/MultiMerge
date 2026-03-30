@@ -1,4 +1,4 @@
-﻿﻿﻿﻿#ifndef STREAMMERGEENGINE_H
+﻿﻿﻿﻿﻿﻿#ifndef STREAMMERGEENGINE_H
 #define STREAMMERGEENGINE_H
 
 #include <QObject>

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿#include "core/DataFileMerger.h"
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿#include "core/DataFileMerger.h"
 #include "core/StreamMergeEngine.h"
 #include "TimePoint.h"
 #include "TimeParser.h"
@@ -109,22 +109,12 @@ void printResult(const MergeResult& result, bool verbose) {
 
 int main(int argc, char *argv[]) {
     // ==================== 程序初始化 ====================
-    qDebug() << "=== 程序启动 ===";
-    qDebug() << "argc:" << argc;
-    qDebug() << "工作目录:" << QDir::currentPath();
-    
     // 创建 Qt 应用程序对象（命令行工具不需要 GUI）
     QCoreApplication app(argc, argv);
 
-    qDebug() << "应用程序已创建";
-    
     // 设置应用程序基本信息
     QCoreApplication::setApplicationName("MultiMerge");
     QCoreApplication::setApplicationVersion("1.0");
-    
-    // ==================== 测试新增的时间格式功能 ====================
-    // 调用测试函数，验证冒号分隔时间格式的解析和输出
-    test_timeFormats();
     
     // ==================== 命令行解析器配置 ====================
     QCommandLineParser parser;
@@ -134,7 +124,7 @@ int main(int argc, char *argv[]) {
     // 添加位置参数：输入文件列表
     parser.addPositionalArgument("files", "输入文件列表（至少 2 个）", "<file1> <file2> [file3] ...");
     
-    qDebug() << "解析器已创建";
+
 
     // 添加 --output 选项（短选项：-o）
     QCommandLineOption outputOption(
@@ -184,9 +174,9 @@ int main(int argc, char *argv[]) {
     // 添加 --engine 选项（短选项：-E）
     QCommandLineOption engineOption(
         QStringList() << "E" << "engine",
-        "合并引擎：legacy（旧引擎）, stream（新流式引擎）（默认：legacy）",
+        "合并引擎：legacy（旧引擎）, stream（新流式引擎）（默认：stream）",
         "engine",
-        "legacy"  // 默认使用旧引擎
+        "stream"  // 默认使用新引擎
     );
     parser.addOption(engineOption);
     
@@ -198,9 +188,6 @@ int main(int argc, char *argv[]) {
     parser.addOption(verboseOption);
     
     // ==================== 手动解析命令行参数 ====================
-    qDebug() << "准备处理命令行参数...";
-    qDebug() << "argc:" << argc;
-    qDebug() << "argv:" << QCoreApplication::arguments();
     
     // 重要：使用手动解析而非 parser.process()
     // 原因：parser.process() 在遇到 --help 时会直接退出程序，无法进行后续处理
@@ -226,7 +213,7 @@ int main(int argc, char *argv[]) {
     QString encoding = "UTF-8";
     qint64 toleranceUs = -1;  // -1 表示无限制
     bool verbose = false;
-    QString engineType = "legacy";
+    QString engineType = "stream";
     
     // 存储输入文件的向量
     QVector<QString> inputFiles;
@@ -236,20 +223,30 @@ int main(int argc, char *argv[]) {
         QString arg = args[i];
         
         // 解析各个选项
-        if (arg == "-o" && i + 1 < args.size()) {
-            outputFile = args[++i];  // 读取下一个参数作为输出文件名
-        } else if (arg == "-i" && i + 1 < args.size()) {
-            interpolationMethod = args[++i];  // 读取插值方法
-        } else if (arg == "-d" && i + 1 < args.size()) {
-            delimiterMethod = args[++i];  // 读取分隔符
-        } else if (arg == "-e" && i + 1 < args.size()) {
-            encoding = args[++i];  // 读取编码
-        } else if (arg == "-t" && i + 1 < args.size()) {
-            bool ok = false;
-            toleranceUs = args[++i].toLongLong(&ok);  // 读取时间容差（微秒）
-            if (!ok || toleranceUs < -1) {
-                qWarning() << "错误：--tolerance 参数必须是 -1 或 >= 0 的整数（单位：微秒）";
-                return 1;
+        if (arg == "-o" || arg == "--output") {
+            if (i + 1 < args.size()) {
+                outputFile = args[++i];  // 读取下一个参数作为输出文件名
+            }
+        } else if (arg == "-i" || arg == "--interpolation") {
+            if (i + 1 < args.size()) {
+                interpolationMethod = args[++i];  // 读取插值方法
+            }
+        } else if (arg == "-d" || arg == "--delimiter") {
+            if (i + 1 < args.size()) {
+                delimiterMethod = args[++i];  // 读取分隔符
+            }
+        } else if (arg == "-e" || arg == "--encoding") {
+            if (i + 1 < args.size()) {
+                encoding = args[++i];  // 读取编码
+            }
+        } else if (arg == "-t" || arg == "--tolerance") {
+            if (i + 1 < args.size()) {
+                bool ok = false;
+                toleranceUs = args[++i].toLongLong(&ok);  // 读取时间容差（微秒）
+                if (!ok || toleranceUs < -1) {
+                    qWarning() << "错误：--tolerance 参数必须是 -1 或 >= 0 的整数（单位：微秒）";
+                    return 1;
+                }
             }
         } else if (arg == "-E" || arg == "--engine") {
             if (i + 1 < args.size()) {
@@ -263,16 +260,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    // 打印解析结果
-    qDebug() << "解析完成:";
-    qDebug() << "  输入文件:" << inputFiles;
-    qDebug() << "  输出文件:" << outputFile;
-    qDebug() << "  插值方法:" << interpolationMethod;
-    qDebug() << "  分隔符:" << delimiterMethod;
-    qDebug() << "  编码:" << encoding;
-    qDebug() << "  时间容差(us):" << toleranceUs;
-    qDebug() << "  详细输出:" << verbose;
-    qDebug() << "  引擎类型:" << engineType;
+
     
     // ==================== 参数验证 ====================
     
