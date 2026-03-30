@@ -1,0 +1,256 @@
+{
+	"AUTOGEN_COMMAND_LINE_LENGTH_MAX" : 32000,
+	"BUILD_DIR" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/MultiMerge_autogen",
+	"CMAKE_BINARY_DIR" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build",
+	"CMAKE_CURRENT_BINARY_DIR" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build",
+	"CMAKE_CURRENT_SOURCE_DIR" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge",
+	"CMAKE_EXECUTABLE" : "C:/Qt/Tools/CMake_64/bin/cmake.exe",
+	"CMAKE_LIST_FILES" : 
+	[
+		"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/CMakeLists.txt",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeDetermineSystem.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeSystem.cmake.in",
+		"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/3.30.5/CMakeSystem.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeNinjaFindMake.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeSystemSpecificInitialize.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-Initialize.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeDetermineCXXCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeDetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-Determine-CXX.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeDetermineCompilerId.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCompilerIdDetection.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/ADSP-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/ARMCC-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/ARMClang-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/AppleClang-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Clang-DetermineCompilerInternal.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Borland-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Clang-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Clang-DetermineCompilerInternal.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Cray-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/CrayClang-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Embarcadero-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Fujitsu-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GHS-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/HP-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/IAR-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Intel-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/MSVC-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/NVHPC-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/NVIDIA-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/OrangeC-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/PGI-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/PathScale-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/SCO-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/TI-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/TIClang-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Tasking-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/Watcom-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/XL-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeFindBinUtils.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GNU-FindBinUtils.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCXXCompiler.cmake.in",
+		"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/3.30.5/CMakeCXXCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeSystemSpecificInformation.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeGenericSystem.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeInitializeConfigs.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/WindowsPaths.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCXXInformation.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeLanguageInformation.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GNU-CXX.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GNU.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/CMakeCommonCompilerMacros.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU-CXX.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeDetermineRCCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeRCCompiler.cmake.in",
+		"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/3.30.5/CMakeRCCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeRCInformation.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-windres.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeTestRCCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCommonLanguageInclude.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeTestCXXCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeTestCompilerCommon.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeDetermineCompilerABI.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Internal/CMakeDetermineLinkerId.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeParseImplicitIncludeInfo.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeParseImplicitLinkInfo.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeParseLibraryArchitecture.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeTestCompilerCommon.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCXXCompilerABI.cpp",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeDetermineCompilerSupport.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Internal/FeatureTesting.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCXXCompiler.cmake.in",
+		"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/3.30.5/CMakeCXXCompiler.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU-CXX-ABI.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5/Qt5ConfigVersion.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5/Qt5Config.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5/Qt5ModuleLocation.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Core/Qt5CoreConfigVersion.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Core/Qt5CoreConfig.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Core/Qt5CoreConfigExtras.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Core/Qt5CoreConfigExtrasMkspecDir.cmake",
+		"C:/Qt/5.15.2/mingw81_64/lib/cmake/Qt5Core/Qt5CoreMacros.cmake",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeParseArguments.cmake"
+	],
+	"CMAKE_SOURCE_DIR" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge",
+	"CROSS_CONFIG" : false,
+	"DEP_FILE" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/MultiMerge_autogen/deps",
+	"DEP_FILE_RULE_NAME" : "MultiMerge_autogen/timestamp",
+	"HEADERS" : 
+	[
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/TimeParser.h",
+			"MU",
+			"EWIEGA46WW/moc_TimeParser.cpp",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/TimePoint.h",
+			"MU",
+			"EWIEGA46WW/moc_TimePoint.cpp",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/core/DataFileMerger.h",
+			"MU",
+			"TAC5DWH4SE/moc_DataFileMerger.cpp",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/core/Interpolator.h",
+			"MU",
+			"TAC5DWH4SE/moc_Interpolator.cpp",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/core/StreamMergeEngine.h",
+			"MU",
+			"TAC5DWH4SE/moc_StreamMergeEngine.cpp",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/io/FileReader.h",
+			"MU",
+			"HR73DCNJIQ/moc_FileReader.cpp",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/utils/DelimiterDetector.h",
+			"MU",
+			"7HEHEGDA3T/moc_DelimiterDetector.cpp",
+			null
+		]
+	],
+	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
+	"INCLUDE_DIR" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/MultiMerge_autogen/include",
+	"MOC_COMPILATION_FILE" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/MultiMerge_autogen/mocs_compilation.cpp",
+	"MOC_DEFINITIONS" : [ "QT_CORE_LIB", "QT_NO_DEBUG" ],
+	"MOC_DEPEND_FILTERS" : 
+	[
+		[
+			"Q_PLUGIN_METADATA",
+			"[\n][ \t]*Q_PLUGIN_METADATA[ \t]*\\([^\\)]*FILE[ \t]*\"([^\"]+)\""
+		]
+	],
+	"MOC_INCLUDES" : 
+	[
+		"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge",
+		"C:/Qt/5.15.2/mingw81_64/include",
+		"C:/Qt/5.15.2/mingw81_64/include/QtCore",
+		"C:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++",
+		"C:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++",
+		"C:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32",
+		"C:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward",
+		"C:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include",
+		"C:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed",
+		"C:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include"
+	],
+	"MOC_MACRO_NAMES" : [ "Q_OBJECT", "Q_GADGET", "Q_NAMESPACE", "Q_NAMESPACE_EXPORT" ],
+	"MOC_OPTIONS" : [],
+	"MOC_PATH_PREFIX" : false,
+	"MOC_PREDEFS_CMD" : 
+	[
+		"C:/Qt/Tools/mingw810_64/bin/c++.exe",
+		"-std=gnu++14",
+		"-dM",
+		"-E",
+		"-c",
+		"C:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCXXCompilerABI.cpp"
+	],
+	"MOC_PREDEFS_FILE" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/MultiMerge_autogen/moc_predefs.h",
+	"MOC_RELAXED_MODE" : false,
+	"MOC_SKIP" : [],
+	"MULTI_CONFIG" : false,
+	"PARALLEL" : 12,
+	"PARSE_CACHE_FILE" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/MultiMerge_autogen.dir/ParseCache.txt",
+	"QT_MOC_EXECUTABLE" : "C:/Qt/5.15.2/mingw81_64/bin/moc.exe",
+	"QT_UIC_EXECUTABLE" : "",
+	"QT_VERSION_MAJOR" : 5,
+	"QT_VERSION_MINOR" : 15,
+	"SETTINGS_FILE" : "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/MultiMerge_autogen.dir/AutogenUsed.txt",
+	"SOURCES" : 
+	[
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/TimeParser.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/TimePoint.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/cli/main.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/core/DataFileMerger.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/core/Interpolator.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/core/StreamMergeEngine.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/io/FileReader.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/utils/DelimiterDetector.cpp",
+			"MU",
+			null
+		]
+	],
+	"UIC_OPTIONS" : [],
+	"UIC_SEARCH_PATHS" : [],
+	"UIC_SKIP" : [],
+	"UIC_UI_FILES" : [],
+	"USE_BETTER_GRAPH" : false,
+	"VERBOSITY" : 0
+}

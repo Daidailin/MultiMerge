@@ -1,0 +1,17 @@
+{
+    "terminal.integrated.env.windows": {
+        "QT_ROOT": "C:\\Qt\\5.15.2\\mingw81_64",
+        "MINGW_ROOT": "C:\\Qt\\Tools\\mingw810_64",
+        "CMAKE_ROOT": "C:\\Qt\\Tools\\CMake_64",
+        "NINJA_ROOT": "C:\\Qt\\Tools\\Ninja",
+        "CMAKE_PREFIX_PATH": "C:\\Qt\\5.15.2\\mingw81_64",
+        "PATH": "C:\\Qt\\5.15.2\\mingw81_64\\bin;C:\\Qt\\Tools\\mingw810_64\\bin;C:\\Qt\\Tools\\CMake_64\\bin;C:\\Qt\\Tools\\Ninja;${env:PATH}"
+    },
+    "cmake.generator": "Ninja",
+    "cmake.cmakePath": "C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureOnOpen": true,
+    "C_Cpp.default.compilerPath": "C:\\Qt\\Tools\\mingw810_64\\bin\\g++.exe",
+    "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
+    "C_Cpp.default.cppStandard": "c++17"
+}

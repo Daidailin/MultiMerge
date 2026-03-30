@@ -1,0 +1,5 @@
+E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/MultiMerge.dir
+E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/edit_cache.dir
+E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/rebuild_cache.dir
+E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/MultiMerge_autogen_timestamp_deps.dir
+E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge/build/CMakeFiles/MultiMerge_autogen.dir

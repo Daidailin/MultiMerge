@@ -1,0 +1,38 @@
+# Qt Creator
+*.pro.user
+*.creator
+*.creator.user
+
+# 编译输出
+build-*/
+debug/
+release/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.lib
+*.a
+*.exp
+*.ilk
+*.pdb
+
+# Qt Creator 临时文件
+*.autosave
+*~
+
+# 测试数据
+test_data/
+
+# 测试目录 (需要版本控制)
+!tests/
+
+# 输出文件
+*.csv
+merged_result.txt
+
+# 部署脚本
+*.bat
+*.sh

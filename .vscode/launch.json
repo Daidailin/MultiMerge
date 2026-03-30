@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Qt: Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${workspaceFolderBasename}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                { "name": "QT_ROOT", "value": "C:\\Qt\\5.15.2\\mingw81_64" },
+                { "name": "MINGW_ROOT", "value": "C:\\Qt\\Tools\\mingw810_64" },
+                { "name": "PATH", "value": "C:\\Qt\\5.15.2\\mingw81_64\\bin;C:\\Qt\\Tools\\mingw810_64\\bin;${env:PATH}" }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\Qt\\Tools\\mingw810_64\\bin\\gdb.exe",
+            "preLaunchTask": "Qt: Build and Deploy"
+        }
+    ]
+}

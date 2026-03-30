@@ -1,0 +1,79 @@
+=== 程序启动 ===
+argc: 9
+工作目录: "E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge"
+应用程序已创建
+
+========== 测试时间格式（简化版）==========
+
+--- 测试冒号分隔格式解析（自动精度推断） ---
+
+[自动精度推断测试]
+规则：1-3 位=毫秒，4-6 位=微秒
+
+--- 毫秒精度（1-3 位）---
+输入： "1:2:3:5"  → 输出： "01:02:03:005"  [ "毫秒" ]
+输入： "1:2:3:50"  → 输出： "01:02:03:050"  [ "毫秒" ]
+输入： "1:2:3:123"  → 输出： "01:02:03:123"  [ "毫秒" ]
+输入： "12:30:45:123"  → 输出： "12:30:45:123"  [ "毫秒" ]
+输入： "0:0:0:000"  → 输出： "00:00:00:000"  [ "毫秒" ]
+
+--- 微秒精度（4-6 位）---
+输入： "1:2:3:1234"  → 输出： "01:02:03:001234"  [ "微秒" ]
+输入： "1:2:3:12345"  → 输出： "01:02:03:012345"  [ "微秒" ]
+输入： "1:2:3:123456"  → 输出： "01:02:03:123456"  [ "微秒" ]
+输入： "12:30:45:123456"  → 输出： "12:30:45:123456"  [ "微秒" ]
+
+--- 测试 TimePoint 输出格式（统一补零） ---
+毫秒时间点（补零）： "12:30:45:123"
+微秒时间点（补零）： "12:30:45:123456"
+
+--- 测试自定义格式 ---
+默认格式（补零）： "12:30:45:500000"
+自定义 (hh:mm:ss)： "12:30:45"
+自定义 (hh:mm:ss:fff)： "12:30:45:500"
+自定义 (hh:mm:ss:u)： "12:30:45:500000"
+
+========== 测试完成 ==========
+
+解析器已创建
+QCommandLineParser: already having an option named "v"
+准备处理命令行参数...
+argc: 9
+argv: ("E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\build\\MultiMerge.exe", "-E", "legacy", "-i", "nearest", "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\input\\gold_a1_file1.txt", "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\input\\gold_a1_file2.txt", "-o", "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\output\\gold_a_legacy_nearest.txt")
+解析完成:
+  输入文件: QVector("E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\input\\gold_a1_file1.txt", "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\input\\gold_a1_file2.txt")
+  输出文件: "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\output\\gold_a_legacy_nearest.txt"
+  插值方法: "nearest"
+  分隔符: "space"
+  编码: "UTF-8"
+  时间容差: 0
+  详细输出: false
+  引擎类型: "legacy"
+========================================
+MultiMerge 数据文件合并工具 v1.0
+========================================
+输入文件: 2
+  - "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\input\\gold_a1_file1.txt"
+  - "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\input\\gold_a1_file2.txt"
+输出文件: "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\output\\gold_a_legacy_nearest.txt"
+插值方法: "nearest"
+输出分隔符: "space"
+输出编码: "UTF-8"
+========================================
+========================================
+开始执行合并...
+========================================
+使用 DataFileMerger（旧版引擎）
+[状态] 正在加载文件...
+[状态] 正在加载文件 1/2: E:\TraeCN\TraeCN_project\test\QT_Project\MultiMerge\test_data\input\gold_a1_file1.txt
+[状态] 正在加载文件 2/2: E:\TraeCN\TraeCN_project\test\QT_Project\MultiMerge\test_data\input\gold_a1_file2.txt
+进度：30%
+[状态] 正在合并数据...
+进度：50%
+进度：70%
+进度：90%
+[状态] 合并完成
+进度：100%
+合并成功!
+  输出文件: "E:\\TraeCN\\TraeCN_project\\test\\QT_Project\\MultiMerge\\test_data\\output\\gold_a_legacy_nearest.txt"
+  合并行数: 3

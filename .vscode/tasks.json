@@ -1,0 +1,110 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Qt: Configure",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/d",
+                "/c",
+                "call \"${workspaceFolder}\\tools\\qt5_trae_vars.bat\" && cmake -S . -B build -G Ninja"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Qt: Build",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/d",
+                "/c",
+                "call \"${workspaceFolder}\\tools\\qt5_trae_vars.bat\" && cmake --build build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": "Qt: Configure",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Qt: Deploy",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/d",
+                "/c",
+                "call \"${workspaceFolder}\\tools\\deploy.bat\""
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Qt: Build and Deploy",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/d",
+                "/c",
+                "call \"${workspaceFolder}\\tools\\qt5_trae_vars.bat\" && cmake --build build && call \"${workspaceFolder}\\tools\\deploy.bat\""
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Qt: Configure",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Qt: Run",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/d",
+                "/c",
+                "call \"${workspaceFolder}\\tools\\qt5_trae_vars.bat\" && \"${workspaceFolder}\\build\\${workspaceFolderBasename}.exe\""
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Qt: Clean",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/d",
+                "/c",
+                "call \"${workspaceFolder}\\tools\\qt5_trae_vars.bat\" && cmake --build build --target clean"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Qt: Rebuild",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/d",
+                "/c",
+                "call \"${workspaceFolder}\\tools\\qt5_trae_vars.bat\" && cmake --build build --target clean && cmake --build build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Qt: Configure",
+            "problemMatcher": "$gcc"
+        }
+    ]
+}

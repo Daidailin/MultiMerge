@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE QtCreatorProject>
+<qtcreator>
+ <data>
+  <variable>RunSettings.WorkingDirectory</variable>
+  <value type="QString">E:/TraeCN/TraeCN_project/test/QT_Project/MultiMerge</value>
+ </data>
+ <data>
+  <variable>RunSettings.CommandLineArguments</variable>
+  <value type="QString">test_data/sensor1.txt test_data/sensor2.txt -o output.txt -v</value>
+ </data>
+ <data>
+  <variable>RunSettings.UseAlternateExecutable</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunSettings.AlternateExecutable</variable>
+  <value type="QString"></value>
+ </data>
+ <data>
+  <variable>RunSettings.WorkingDirectoryUseBuildDir</variable>
+  <value type="bool">false</value>
+ </data>
+ <data>
+  <variable>RunSettings.Environment</variable>
+  <valuelist type="QVariantList"/>
+ </data>
+ <data>
+  <variable>RunSettings.SystemEnvironment</variable>
+  <value type="bool">true</value>
+ </data>
+</qtcreator>
