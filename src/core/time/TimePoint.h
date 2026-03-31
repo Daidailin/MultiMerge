@@ -1,39 +1,40 @@
 #ifndef TIMEPOINT_H
 #define TIMEPOINT_H
 
-#include <string>
-#include <iostream>
+#include <QString>
 
 class TimePoint {
 private:
-    long long totalMilliseconds; // 总毫秒数
+    int m_hours;
+    int m_minutes;
+    int m_seconds;
+    int m_milliseconds;
 
 public:
     TimePoint();
-    TimePoint(long long ms);
-    TimePoint(int hour, int minute, int second, int millisecond);
-
+    TimePoint(int hours, int minutes, int seconds, int milliseconds);
+    
     // 从字符串解析时间点
-    bool fromString(const std::string& timeStr);
-
+    bool fromString(const QString& timeStr);
+    
     // 转换为字符串
-    std::string toString() const;
-
-    // 获取总毫秒数
-    long long getTotalMilliseconds() const;
-
+    QString toString() const;
+    
     // 比较运算符
     bool operator<(const TimePoint& other) const;
-    bool operator<=(const TimePoint& other) const;
-    bool operator>(const TimePoint& other) const;
-    bool operator>=(const TimePoint& other) const;
     bool operator==(const TimePoint& other) const;
-    bool operator!=(const TimePoint& other) const;
-
-    // 算术运算符
-    TimePoint operator+(long long ms) const;
-    TimePoint operator-(long long ms) const;
-    long long operator-(const TimePoint& other) const;
+    
+    // 转换为毫秒数
+    long long toMilliseconds() const;
+    
+    // 从毫秒数创建时间点
+    static TimePoint fromMilliseconds(long long ms);
+    
+    // 获取各个时间分量
+    int hours() const { return m_hours; }
+    int minutes() const { return m_minutes; }
+    int seconds() const { return m_seconds; }
+    int milliseconds() const { return m_milliseconds; }
 };
 
 #endif // TIMEPOINT_H
