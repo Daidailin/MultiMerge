@@ -1,31 +1,32 @@
 #ifndef DATAFILEMERGER_H
 #define DATAFILEMERGER_H
 
-#include "../time/TimePoint.h"
+#include <QString>
+#include <QVector>
+#include <QMap>
+#include "../../io/FileReader.h"
 #include "../interpolate/Interpolator.h"
-#include <vector>
-#include <string>
 
 class DataFileMerger {
-private:
-    struct FileData {
-        std::vector<TimePoint> times;
-        std::vector<std::vector<std::string>> values;
-        std::vector<std::string> headers;
-    };
-
-    std::vector<FileData> fileDataList;
-    Interpolator::Method interpolationMethod;
-    long long timeTolerance;
-
 public:
-    DataFileMerger(Interpolator::Method method, long long tolerance = 0);
+    // 合并多个数据文件
+    static bool mergeFiles(const QVector<QString>& inputFiles, const QString& outputFile, 
+                          Interpolator::InterpolationType interpolationType = Interpolator::NEAREST_NEIGHBOR);
     
-    bool addFile(const std::string& filename);
-    bool merge(const std::string& outputFilename, const std::string& delimiter = " ");
+    // 合并多个文件的元数据
+    static FileMetadata mergeMetadata(const QVector<FileMetadata>& metadatas, 
+                                     Interpolator::InterpolationType interpolationType);
     
-    // 静态方法：检测文件分隔符
-    static std::string detectDelimiter(const std::string& filename);
+    // 从元数据中提取时间点和对应的值
+    static QMap<long long, QVector<double>> extractTimeValueMap(const FileMetadata& metadata);
+    
+    // 合并多个时间值映射
+    static QMap<long long, QVector<double>> mergeTimeValueMaps(const QVector<QMap<long long, QVector<double>>>& maps);
+    
+    // 为缺失的时间点插值
+    static void interpolateMissingValues(QMap<long long, QVector<double>>& mergedMap, 
+                                        const QVector<QMap<long long, QVector<double>>>& originalMaps, 
+                                        Interpolator::InterpolationType interpolationType);
 };
 
 #endif // DATAFILEMERGER_H
