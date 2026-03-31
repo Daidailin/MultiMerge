@@ -1,22 +1,25 @@
 #ifndef FILEREADER_H
 #define FILEREADER_H
 
-#include <vector>
-#include <string>
+#include <QString>
+#include <QVector>
+#include <QMap>
+
+struct FileMetadata {
+    QStringList headers;
+    QVector<QStringList> data;
+};
 
 class FileReader {
-private:
-    std::string filename;
-    std::string delimiter;
-
 public:
-    FileReader(const std::string& filename, const std::string& delimiter = " ");
+    // 读取文件并返回文件元数据
+    static FileMetadata readFile(const QString& filePath, QChar delimiter);
     
-    bool readFile(std::vector<std::vector<std::string>>& data, std::vector<std::string>& headers);
-    bool readFileWithTime(std::vector<long long>& times, std::vector<std::vector<std::string>>& data, std::vector<std::string>& headers);
+    // 读取文件的表头
+    static QStringList readHeaders(const QString& filePath, QChar delimiter);
     
-    void setDelimiter(const std::string& delimiter);
-    std::string getDelimiter() const;
+    // 读取文件数据
+    static QVector<QStringList> readData(const QString& filePath, QChar delimiter);
 };
 
 #endif // FILEREADER_H
