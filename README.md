@@ -1,109 +1,131 @@
 # MultiMerge
 
-数据文件合并工具 - 基于时间戳对齐合并多个数据文件
+MultiMerge 是一个多文件数据合并工具，用于合并多个时间序列数据文件。它支持不同的插值方法和合并引擎，能够处理不同格式的数据文件。
 
 ## 功能特性
 
-- ✅ 支持合并多个具有时间戳的数据文件
-- ✅ 自动检测文件分隔符（逗号、分号、制表符、空格）
-- ✅ 支持多种时间格式（HH:MM:SS.fff）
-- ✅ 三种插值方法：最近邻、线性插值、不插值
-- ✅ 灵活的输出格式（空格、逗号、制表符分隔）
-- ✅ 支持 UTF-8 和 GBK 编码
-- ✅ 可配置的时间容差
-- ✅ 详细输出模式
-
-## 编译要求
-
-- Qt 5.9 或更高版本
-- C++17 兼容编译器
-- MSVC 2015 或更高版本
-
-## 编译说明
-
-1. 使用 Qt Creator 打开 `MultiMerge.pro`
-2. 选择 Desktop Qt 5.9 MSVC2015 64bit 套件
-3. 按 Ctrl+B 编译
-
-## 使用方法
-
-### 命令行
-
-```bash
-MultiMerge.exe [选项] <输入文件 1> <输入文件 2> ...
-```
-
-### 选项
-
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| `-o, --output <文件名>` | 输出文件名 | `merged_result.txt` |
-| `-i, --interpolation <方法>` | 插值方法：nearest, linear, none | `nearest` |
-| `-d, --delimiter <分隔符>` | 输出分隔符：space, comma, tab | `space` |
-| `-e, --encoding <编码>` | 输出编码：UTF-8, GBK | `UTF-8` |
-| `-t, --tolerance <毫秒>` | 时间容差（毫秒） | `0` |
-| `-v, --verbose` | 详细输出模式 | 关闭 |
-| `-h, --help` | 显示帮助信息 | - |
-| `--version` | 显示版本信息 | - |
-
-### 示例
-
-```bash
-# 合并两个传感器文件
-MultiMerge.exe sensor1.txt sensor2.txt -o result.txt -v
-
-# 使用线性插值，逗号分隔
-MultiMerge.exe data1.txt data2.txt data3.txt -i linear -d comma
-
-# 使用 GBK 编码输出
-MultiMerge.exe file1.txt file2.txt -e GBK
-```
-
-## 输入文件格式
-
-支持的时间格式：
-- `HH:MM:SS.fff` (时：分：秒。毫秒)
-- 自动检测分隔符（逗号、分号、制表符、空格）
-
-示例：
-```
-Time;Sensor1;Sensor2;Sensor3
-00:00:00.000;1.5;2.3;3.1
-00:00:01.000;1.6;2.4;3.2
-00:00:02.000;1.7;2.5;3.3
-```
-
-## 输出格式
-
-输出文件包含：
-- 时间列（来自第一个文件）
-- 第一个文件的所有数据列
-- 其他文件的数据列（通过插值对齐到第一个文件的时间点）
-
-**注意**：如果列名重复，会发出警告并跳过重复的列，保留第一个文件的数据。
+- 支持多个时间序列数据文件的合并
+- 支持不同的插值方法（最近邻、线性）
+- 支持两种合并引擎：
+  - 传统合并引擎（DataFileMerger）
+  - 流式合并引擎（StreamMergeEngine）
+- 自动检测文件分隔符
+- 支持自定义输出文件路径
+- 支持命令行参数配置
 
 ## 项目结构
 
 ```
 MultiMerge/
-├── cli/                  # 命令行接口
-│   └── main.cpp
-├── core/                 # 核心业务逻辑
-│   ├── Interpolator.h/cpp   # 插值算法
-│   └── DataFileMerger.h/cpp # 合并引擎
-├── io/                   # 文件 I/O
-│   └── FileReader.h/cpp     # 文件读取器
-├── utils/                # 工具类
-│   └── DelimiterDetector.h/cpp # 分隔符检测
-├── TimePoint.h/cpp       # 时间点表示
-├── TimeParser.h/cpp      # 时间字符串解析
-└── MultiMerge.pro        # Qt 项目文件
+├── CMakeLists.txt       # CMake 构建配置
+├── MultiMerge.pro       # Qt 项目配置
+├── README.md            # 项目说明
+├── src/
+│   ├── core/
+│   │   ├── time/        # 时间处理相关
+│   │   │   ├── TimePoint.h
+│   │   │   ├── TimePoint.cpp
+│   │   │   ├── TimeParser.h
+│   │   │   └── TimeParser.cpp
+│   │   ├── interpolate/ # 插值算法
+│   │   │   ├── Interpolator.h
+│   │   │   └── Interpolator.cpp
+│   │   └── merge/       # 合并引擎
+│   │       ├── DataFileMerger.h
+│   │       ├── DataFileMerger.cpp
+│   │       ├── StreamMergeEngine.h
+│   │       └── StreamMergeEngine.cpp
+│   ├── io/              # 文件读写
+│   │   ├── FileReader.h
+│   │   └── FileReader.cpp
+│   ├── utils/           # 工具类
+│   │   ├── DelimiterDetector.h
+│   │   └── DelimiterDetector.cpp
+│   └── main/cli/        # 命令行入口
+│       └── main.cpp
+└── tests/               # 测试文件
 ```
+
+## 构建方法
+
+### 使用 CMake
+
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+
+### 使用 Qt Creator
+
+1. 打开 `MultiMerge.pro` 文件
+2. 构建项目
+
+## 使用方法
+
+### 命令行参数
+
+```
+MultiMerge [options] file1 file2 ...
+
+选项：
+  -h, --help                 显示帮助信息
+  -v, --version              显示版本信息
+  -o, --output <output>      输出文件路径
+  -i, --interpolation <interpolation>  插值类型 (nearest/linear)
+  -s, --stream               使用流式合并引擎
+```
+
+### 示例
+
+1. 使用默认参数合并文件：
+   ```bash
+   MultiMerge file1.txt file2.txt
+   ```
+
+2. 指定输出文件和插值方法：
+   ```bash
+   MultiMerge -o merged.txt -i linear file1.txt file2.txt file3.txt
+   ```
+
+3. 使用流式合并引擎：
+   ```bash
+   MultiMerge -s -o merged.txt file1.txt file2.txt
+   ```
+
+## 输入文件格式
+
+输入文件应该是带有表头的文本文件，第一列是时间戳，格式为 `HH:MM:SS:MS`（小时:分钟:秒:毫秒）。后续列是对应时间点的数据值。
+
+示例：
+
+```
+Time,Value1,Value2
+00:00:00:000,1.0,2.0
+00:00:01:000,1.5,2.5
+00:00:02:000,2.0,3.0
+```
+
+## 输出文件格式
+
+输出文件与输入文件格式类似，第一列是合并后的时间戳，后续列是各个输入文件的数据值。如果某个时间点在某个输入文件中不存在，会使用指定的插值方法进行填充。
+
+## 插值方法
+
+- **nearest**：最近邻插值，使用最近的时间点的值
+- **linear**：线性插值，使用相邻时间点的线性插值
+
+## 合并引擎
+
+- **DataFileMerger**：传统合并引擎，先读取所有文件到内存，然后进行合并
+- **StreamMergeEngine**：流式合并引擎，逐行处理文件，内存占用更低
+
+## 依赖
+
+- Qt 5.15 或更高版本
+- C++17 兼容的编译器
 
 ## 许可证
 
-MIT License
-
-## 作者
-
-Developed with ❤️
+MIT 许可证
