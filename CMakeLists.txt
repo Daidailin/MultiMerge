@@ -1,46 +1,52 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(MultiMerge)
+project(MultiMerge VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 查找Qt5
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
 find_package(Qt5 COMPONENTS Core REQUIRED)
 
-# 包含源文件
 set(SOURCES
-    src/main/cli/main.cpp
     src/core/time/TimePoint.cpp
     src/core/time/TimeParser.cpp
+    src/utils/DelimiterDetector.cpp
+    src/io/FileReader.cpp
     src/core/interpolate/Interpolator.cpp
     src/core/merge/DataFileMerger.cpp
     src/core/merge/StreamMergeEngine.cpp
-    src/io/FileReader.cpp
-    src/utils/DelimiterDetector.cpp
+    src/main/cli/main.cpp
 )
 
-# 包含头文件目录
-include_directories(
-    src/core/time
-    src/core/interpolate
-    src/core/merge
-    src/io
-    src/utils
+set(HEADERS
+    src/core/time/TimePoint.h
+    src/core/time/TimeParser.h
+    src/utils/DelimiterDetector.h
+    src/io/FileReader.h
+    src/core/interpolate/Interpolator.h
+    src/core/merge/DataFileMerger.h
+    src/core/merge/StreamMergeEngine.h
 )
 
-# 创建可执行文件
-add_executable(MultiMerge ${SOURCES})
+add_executable(MultiMerge ${SOURCES} ${HEADERS})
 
-# 链接Qt5库
 target_link_libraries(MultiMerge Qt5::Core)
 
-# 设置输出目录
-set_target_properties(MultiMerge PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+target_include_directories(MultiMerge PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# 安装规则
+# 安装目标
 install(TARGETS MultiMerge
-    RUNTIME DESTINATION bin
+    DESTINATION bin
+)
+
+# 安装头文件
+install(FILES ${HEADERS}
+    DESTINATION include/MultiMerge
 )
