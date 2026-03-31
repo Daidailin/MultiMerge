@@ -1,12 +1,16 @@
 #ifndef DELIMITERDETECTOR_H
 #define DELIMITERDETECTOR_H
 
-#include <string>
+#include <QString>
+#include <QChar>
 
 class DelimiterDetector {
 public:
-    static std::string detect(const std::string& filename);
-    static std::string detectFromContent(const std::string& content);
+    // 检测文件中的分隔符
+    static QChar detectDelimiter(const QString& filePath);
+    
+    // 检测字符串中的分隔符
+    static QChar detectDelimiterFromString(const QString& content);
 };
 
 #endif // DELIMITERDETECTOR_H
