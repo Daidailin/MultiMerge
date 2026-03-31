@@ -1,20 +1,30 @@
 #ifndef INTERPOLATOR_H
 #define INTERPOLATOR_H
 
-#include <vector>
-#include <string>
+#include <QString>
+#include <QVector>
 
 class Interpolator {
 public:
-    enum class Method {
-        NEAREST,  // 最近邻
-        LINEAR,   // 线性插值
-        NONE      // 不插值
+    enum InterpolationType {
+        NEAREST_NEIGHBOR,
+        LINEAR
     };
 
-    static double interpolate(double x0, double y0, double x1, double y1, double x);
-    static std::vector<double> interpolateValues(const std::vector<double>& times, const std::vector<double>& values, double targetTime, Method method);
-    static std::vector<std::string> interpolateStrings(const std::vector<double>& times, const std::vector<std::string>& values, double targetTime, Method method);
+    // 插值方法
+    static double interpolate(const QVector<double>& x, const QVector<double>& y, double xTarget, InterpolationType type);
+    
+    // 最近邻插值
+    static double nearestNeighbor(const QVector<double>& x, const QVector<double>& y, double xTarget);
+    
+    // 线性插值
+    static double linearInterpolation(const QVector<double>& x, const QVector<double>& y, double xTarget);
+    
+    // 将字符串转换为数值
+    static double stringToDouble(const QString& str);
+    
+    // 将数值转换为字符串
+    static QString doubleToString(double value);
 };
 
 #endif // INTERPOLATOR_H
