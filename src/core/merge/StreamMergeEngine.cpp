@@ -1,167 +1,166 @@
 #include "StreamMergeEngine.h"
-#include <iostream>
-#include <sstream>
-#include <algorithm>
+#include <QFile>
+#include <QTextStream>
+#include "../../utils/DelimiterDetector.h"
+#include "../../core/time/TimeParser.h"
 
-StreamMergeEngine::FileStream::FileStream(const std::string& filename) : hasData(false) {
-    file.open(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return;
+using namespace std;
+
+bool StreamMergeEngine::mergeFiles(const QVector<QString>& inputFiles, const QString& outputFile, 
+                                 Interpolator::InterpolationType interpolationType) {
+    QVector<FileMetadata> metadatas;
+    QVector<QChar> delimiters;
+
+    // 读取所有文件的元数据
+    for (const QString& file : inputFiles) {
+        QChar delimiter = DelimiterDetector::detectDelimiter(file);
+        FileMetadata metadata = FileReader::readFile(file, delimiter);
+        if (!metadata.headers.isEmpty()) {
+            metadatas.append(metadata);
+            delimiters.append(delimiter);
+        }
     }
-    hasData = readNextLine();
-}
 
-bool StreamMergeEngine::FileStream::readNextLine() {
-    if (!std::getline(file, currentLine)) {
+    if (metadatas.isEmpty()) {
         return false;
     }
 
-    std::istringstream ss(currentLine);
-    std::string timeStr;
-    if (!(ss >> timeStr)) {
+    // 处理表头
+    QStringList outputHeaders = processHeaders(metadatas);
+    
+    // 构建列映射
+    QVector<QVector<int>> columnMappings = buildColumnMappings(metadatas);
+
+    // 写入输出文件
+    QFile outFile(outputFile);
+    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return false;
     }
 
-    if (!currentTime.fromString(timeStr)) {
-        return false;
-    }
-
-    currentValues.clear();
-    std::string value;
-    while (ss >> value) {
-        currentValues.push_back(value);
-    }
-
-    return true;
-}
-
-StreamMergeEngine::StreamMergeEngine(const std::vector<std::string>& filenames, Interpolator::Method method, long long tolerance) 
-    : interpolationMethod(method), timeTolerance(tolerance) {
-    for (const auto& filename : filenames) {
-        streams.emplace_back(filename);
-    }
-}
-
-StreamMergeEngine::~StreamMergeEngine() {
-    for (auto& stream : streams) {
-        if (stream.file.is_open()) {
-            stream.file.close();
-        }
-    }
-}
-
-bool StreamMergeEngine::initialize() {
-    // 读取所有文件的第一行作为表头
-    for (size_t i = 0; i < streams.size(); ++i) {
-        if (!streams[i].hasData) {
-            return false;
-        }
-
-        std::istringstream ss(streams[i].currentLine);
-        std::string header;
-        if (!(ss >> header)) {
-            return false;
-        }
-
-        // 对于第一个文件，保留时间列
-        if (i == 0) {
-            headers.push_back(header);
-        }
-
-        // 添加数据列
-        std::string column;
-        while (ss >> column) {
-            headers.push_back(column);
-        }
-
-        // 读取下一行数据
-        if (!streams[i].readNextLine()) {
-            streams[i].hasData = false;
-        }
-    }
-
-    return true;
-}
-
-bool StreamMergeEngine::merge(const std::string& outputFilename, const std::string& delimiter) {
-    std::ofstream output(outputFilename);
-    if (!output.is_open()) {
-        std::cerr << "Error opening output file: " << outputFilename << std::endl;
-        return false;
-    }
+    QTextStream out(&outFile);
+    QChar delimiter = delimiters[0]; // 使用第一个文件的分隔符
+    QString delimiterStr(delimiter);
 
     // 写入表头
-    for (size_t i = 0; i < headers.size(); ++i) {
-        if (i > 0) {
-            output << delimiter;
-        }
-        output << headers[i];
-    }
-    output << std::endl;
+    out << outputHeaders.join(delimiterStr) << "\n";
 
-    // 主合并循环
-    while (true) {
-        // 找到最小的时间点
-        TimePoint minTime;
-        size_t minIndex = -1;
-        bool hasData = false;
+    // 合并数据 - 这里使用简化的方法，实际应用中可能需要更复杂的流式处理
+    // 首先收集所有时间点
+    QSet<long long> allTimes;
+    QVector<QMap<long long, QVector<double>>> timeValueMaps;
 
-        for (size_t i = 0; i < streams.size(); ++i) {
-            if (streams[i].hasData) {
-                if (!hasData || streams[i].currentTime < minTime) {
-                    minTime = streams[i].currentTime;
-                    minIndex = i;
-                    hasData = true;
-                }
+    for (const FileMetadata& metadata : metadatas) {
+        QMap<long long, QVector<double>> map;
+        for (const QStringList& row : metadata.data) {
+            if (row.isEmpty()) continue;
+
+            // 解析时间
+            TimePoint timePoint = TimeParser::parse(row[0]);
+            long long timeMs = timePoint.toMilliseconds();
+            allTimes.insert(timeMs);
+
+            // 解析值
+            QVector<double> values;
+            for (int i = 1; i < row.size(); ++i) {
+                values.append(Interpolator::stringToDouble(row[i]));
             }
+
+            map[timeMs] = values;
         }
+        timeValueMaps.append(map);
+    }
 
-        if (!hasData) {
-            break; // 所有文件都已处理完毕
-        }
+    // 按时间排序
+    QVector<long long> sortedTimes = allTimes.values().toVector();
+    sort(sortedTimes.begin(), sortedTimes.end());
 
-        // 输出时间列
-        output << minTime.toString();
+    // 为每个时间点生成输出行
+    for (long long timeMs : sortedTimes) {
+        QStringList row;
+        TimePoint timePoint = TimePoint::fromMilliseconds(timeMs);
+        row.append(timePoint.toString());
 
-        // 处理每个文件的数据
-        for (size_t i = 0; i < streams.size(); ++i) {
-            if (streams[i].hasData) {
-                // 检查时间是否在容差范围内
-                if (std::abs(streams[i].currentTime - minTime) <= timeTolerance) {
-                    // 输出当前数据
-                    for (const auto& value : streams[i].currentValues) {
-                        output << delimiter << value;
-                    }
-                    // 读取下一行
-                    if (!streams[i].readNextLine()) {
-                        streams[i].hasData = false;
-                    }
-                } else if (streams[i].currentTime < minTime) {
-                    // 数据过期，跳过
-                    if (!streams[i].readNextLine()) {
-                        streams[i].hasData = false;
-                    }
-                    // 递归调用以处理新数据
-                    continue;
-                } else {
-                    // 数据尚未到达，输出空值
-                    for (size_t j = 0; j < streams[i].currentValues.size(); ++j) {
-                        output << delimiter << "";
-                    }
+        // 为每个文件获取或插值数据
+        for (int fileIndex = 0; fileIndex < timeValueMaps.size(); ++fileIndex) {
+            const QMap<long long, QVector<double>>& map = timeValueMaps[fileIndex];
+            const QVector<int>& columnMapping = columnMappings[fileIndex];
+
+            if (map.contains(timeMs)) {
+                // 使用原始值
+                const QVector<double>& values = map[timeMs];
+                for (double value : values) {
+                    row.append(Interpolator::doubleToString(value));
                 }
             } else {
-                // 文件已结束，输出空值
-                size_t valueCount = (i == 0) ? streams[0].currentValues.size() : streams[i].currentValues.size();
-                for (size_t j = 0; j < valueCount; ++j) {
-                    output << delimiter << "";
+                // 插值 - 这里使用简化的最近邻插值
+                // 实际应用中可能需要更复杂的插值方法
+                long long nearestTime = -1;
+                double minDistance = LLONG_MAX;
+
+                for (long long t : map.keys()) {
+                    double distance = abs(t - timeMs);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestTime = t;
+                    }
+                }
+
+                if (nearestTime != -1) {
+                    const QVector<double>& values = map[nearestTime];
+                    for (double value : values) {
+                        row.append(Interpolator::doubleToString(value));
+                    }
+                } else {
+                    // 没有数据，填充默认值
+                    for (int i = 0; i < columnMapping.size(); ++i) {
+                        row.append("0");
+                    }
                 }
             }
         }
 
-        output << std::endl;
+        out << row.join(delimiterStr) << "\n";
     }
 
-    output.close();
+    outFile.close();
     return true;
+}
+
+QStringList StreamMergeEngine::processHeaders(const QVector<FileMetadata>& metadatas) {
+    QStringList outputHeaders;
+    outputHeaders.append("Time");
+    QSet<QString> headerSet;
+    QMap<QString, int> headerCount;
+
+    for (const FileMetadata& metadata : metadatas) {
+        for (int i = 1; i < metadata.headers.size(); ++i) {
+            QString header = metadata.headers[i];
+            if (headerSet.contains(header)) {
+                headerCount[header]++;
+                header = header + "_" + QString::number(headerCount[header]);
+            } else {
+                headerSet.insert(header);
+                headerCount[header] = 1;
+            }
+            outputHeaders.append(header);
+        }
+    }
+
+    return outputHeaders;
+}
+
+QVector<QVector<int>> StreamMergeEngine::buildColumnMappings(const QVector<FileMetadata>& metadatas) {
+    QVector<QVector<int>> columnMappings(metadatas.size());
+
+    for (int fileIndex = 0; fileIndex < metadatas.size(); ++fileIndex) {
+        const FileMetadata& metadata = metadatas[fileIndex];
+        QVector<int> columnMapping;
+
+        for (int i = 1; i < metadata.headers.size(); ++i) {
+            columnMapping.append(i - 1); // 存储原始列索引
+        }
+        columnMappings[fileIndex] = columnMapping;
+    }
+
+    return columnMappings;
 }
