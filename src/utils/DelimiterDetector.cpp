@@ -1,52 +1,47 @@
 #include "DelimiterDetector.h"
-#include <fstream>
-#include <sstream>
-#include <map>
+#include <QFile>
+#include <QTextStream>
+#include <QMap>
 
-std::string DelimiterDetector::detect(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        return " "; // 默认空格
+QChar DelimiterDetector::detectDelimiter(const QString& filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return ','; // 默认返回逗号
     }
 
-    std::string line;
-    if (!std::getline(file, line)) {
-        return " ";
-    }
-
+    QTextStream in(&file);
+    QString line = in.readLine();
     file.close();
-    return detectFromContent(line);
+
+    if (line.isEmpty()) {
+        return ','; // 默认返回逗号
+    }
+
+    return detectDelimiterFromString(line);
 }
 
-std::string DelimiterDetector::detectFromContent(const std::string& content) {
-    // 统计可能的分隔符
-    std::map<char, int> delimiterCount;
-    delimiterCount[','] = 0;
-    delimiterCount[';'] = 0;
-    delimiterCount['\t'] = 0;
-    delimiterCount[' '] = 0;
+QChar DelimiterDetector::detectDelimiterFromString(const QString& content) {
+    QMap<QChar, int> delimiterCounts;
+    delimiterCounts[','] = 0;
+    delimiterCounts[';'] = 0;
+    delimiterCounts['\t'] = 0;
+    delimiterCounts[' '] = 0;
 
-    for (char c : content) {
-        if (delimiterCount.find(c) != delimiterCount.end()) {
-            delimiterCount[c]++;
+    for (const QChar& c : content) {
+        if (delimiterCounts.contains(c)) {
+            delimiterCounts[c]++;
         }
     }
 
-    // 选择出现次数最多的分隔符
-    char bestDelimiter = ' ';
+    QChar bestDelimiter = ',';
     int maxCount = 0;
-    for (const auto& pair : delimiterCount) {
-        if (pair.second > maxCount) {
-            maxCount = pair.second;
-            bestDelimiter = pair.first;
+
+    for (auto it = delimiterCounts.constBegin(); it != delimiterCounts.constEnd(); ++it) {
+        if (it.value() > maxCount) {
+            maxCount = it.value();
+            bestDelimiter = it.key();
         }
     }
 
-    // 转换为字符串
-    switch (bestDelimiter) {
-        case '\t': return "\t";
-        case ',': return ",";
-        case ';': return ";";
-        default: return " ";
-    }
+    return bestDelimiter;
 }
