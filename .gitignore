@@ -1,36 +1,41 @@
-# Qt Creator
-*.pro.user
-*.creator
-*.creator.user
+# 构建目录
+build/
+build-*
 
-# 编译输出
-build-*/
-debug/
-release/
+# Qt生成的文件
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+Makefile
+makefile
+
+# 编译产物
 *.o
 *.obj
 *.exe
 *.dll
 *.so
-*.dylib
-*.lib
 *.a
-*.exp
-*.ilk
-*.pdb
 
-# Qt Creator 临时文件
-*.autosave
+# 调试文件
+*.pdb
+*.dSYM/
+
+# 临时文件
+*.tmp
+*.temp
 *~
 
-# 测试数据
-test_data/
-*.txt
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# 输出文件
-*.csv
-merged_result.txt
+# 测试输出
+tests/output/
 
-# 部署脚本
-*.bat
-*.sh
+# 平台特定文件
+.DS_Store
+Thumbs.db
