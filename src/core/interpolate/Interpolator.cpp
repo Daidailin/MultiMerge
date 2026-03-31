@@ -1,106 +1,69 @@
 #include "Interpolator.h"
+#include <cmath>
 
-#include <algorithm>
-#include <stdexcept>
+using namespace std;
 
-// 线性插值函数
-double Interpolator::interpolate(double x0, double y0, double x1, double y1, double x) {
-    if (x0 == x1) {
-        return y0;
+double Interpolator::interpolate(const QVector<double>& x, const QVector<double>& y, double xTarget, InterpolationType type) {
+    switch (type) {
+    case NEAREST_NEIGHBOR:
+        return nearestNeighbor(x, y, xTarget);
+    case LINEAR:
+        return linearInterpolation(x, y, xTarget);
+    default:
+        return 0.0;
     }
-    return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
 }
 
-// 对数值类型进行插值
-std::vector<double> Interpolator::interpolateValues(const std::vector<double>& times, const std::vector<double>& values, double targetTime, Method method) {
-    if (times.empty() || values.empty() || times.size() != values.size()) {
-        throw std::invalid_argument("Invalid input vectors");
+double Interpolator::nearestNeighbor(const QVector<double>& x, const QVector<double>& y, double xTarget) {
+    if (x.isEmpty() || y.isEmpty() || x.size() != y.size()) {
+        return 0.0;
     }
 
-    std::vector<double> result;
-    
-    // 找到目标时间所在的区间
-    auto it = std::lower_bound(times.begin(), times.end(), targetTime);
-    
-    if (it == times.begin()) {
-        // 目标时间早于所有数据点
-        for (size_t i = 0; i < values.size(); ++i) {
-            result.push_back(values[i]);
-        }
-    } else if (it == times.end()) {
-        // 目标时间晚于所有数据点
-        for (size_t i = 0; i < values.size(); ++i) {
-            result.push_back(values[values.size() - 1]);
-        }
-    } else {
-        // 目标时间在数据点之间
-        size_t index = it - times.begin();
-        double t0 = times[index - 1];
-        double t1 = times[index];
-        
-        for (size_t i = 0; i < values.size(); ++i) {
-            double v0 = values[i * times.size() + index - 1];
-            double v1 = values[i * times.size() + index];
-            
-            switch (method) {
-                case Method::NEAREST:
-                    result.push_back((targetTime - t0) < (t1 - targetTime) ? v0 : v1);
-                    break;
-                case Method::LINEAR:
-                    result.push_back(interpolate(t0, v0, t1, v1, targetTime));
-                    break;
-                case Method::NONE:
-                    result.push_back(0.0); // 或者其他默认值
-                    break;
-            }
+    int nearestIndex = 0;
+    double minDistance = abs(x[0] - xTarget);
+
+    for (int i = 1; i < x.size(); ++i) {
+        double distance = abs(x[i] - xTarget);
+        if (distance < minDistance) {
+            minDistance = distance;
+            nearestIndex = i;
         }
     }
-    
-    return result;
+
+    return y[nearestIndex];
 }
 
-// 对字符串类型进行插值（主要用于最近邻）
-std::vector<std::string> Interpolator::interpolateStrings(const std::vector<double>& times, const std::vector<std::string>& values, double targetTime, Method method) {
-    if (times.empty() || values.empty() || times.size() != values.size()) {
-        throw std::invalid_argument("Invalid input vectors");
+double Interpolator::linearInterpolation(const QVector<double>& x, const QVector<double>& y, double xTarget) {
+    if (x.isEmpty() || y.isEmpty() || x.size() != y.size()) {
+        return 0.0;
     }
 
-    std::vector<std::string> result;
-    
-    // 找到目标时间所在的区间
-    auto it = std::lower_bound(times.begin(), times.end(), targetTime);
-    
-    if (it == times.begin()) {
-        // 目标时间早于所有数据点
-        for (size_t i = 0; i < values.size(); ++i) {
-            result.push_back(values[i]);
-        }
-    } else if (it == times.end()) {
-        // 目标时间晚于所有数据点
-        for (size_t i = 0; i < values.size(); ++i) {
-            result.push_back(values[values.size() - 1]);
-        }
-    } else {
-        // 目标时间在数据点之间
-        size_t index = it - times.begin();
-        double t0 = times[index - 1];
-        double t1 = times[index];
-        
-        for (size_t i = 0; i < values.size(); ++i) {
-            std::string v0 = values[i * times.size() + index - 1];
-            std::string v1 = values[i * times.size() + index];
-            
-            switch (method) {
-                case Method::NEAREST:
-                    result.push_back((targetTime - t0) < (t1 - targetTime) ? v0 : v1);
-                    break;
-                case Method::LINEAR:
-                case Method::NONE:
-                    result.push_back(v0); // 字符串不支持线性插值
-                    break;
-            }
-        }
+    // 找到xTarget所在的区间
+    int i = 0;
+    while (i < x.size() - 1 && x[i] < xTarget) {
+        ++i;
     }
-    
-    return result;
+
+    // 处理边界情况
+    if (i == 0) {
+        return y[0];
+    }
+    if (i == x.size()) {
+        return y.last();
+    }
+
+    // 线性插值
+    double x1 = x[i-1], y1 = y[i-1];
+    double x2 = x[i], y2 = y[i];
+    return y1 + (y2 - y1) * (xTarget - x1) / (x2 - x1);
+}
+
+double Interpolator::stringToDouble(const QString& str) {
+    bool ok;
+    double value = str.toDouble(&ok);
+    return ok ? value : 0.0;
+}
+
+QString Interpolator::doubleToString(double value) {
+    return QString::number(value, 'g', 10);
 }
