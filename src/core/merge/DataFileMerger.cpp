@@ -1,186 +1,183 @@
 #include "DataFileMerger.h"
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <algorithm>
-#include <map>
+#include <QFile>
+#include <QTextStream>
+#include "../../utils/DelimiterDetector.h"
+#include "../../core/time/TimeParser.h"
 
-DataFileMerger::DataFileMerger(Interpolator::Method method, long long tolerance) 
-    : interpolationMethod(method), timeTolerance(tolerance) {}
+using namespace std;
 
-bool DataFileMerger::addFile(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
+bool DataFileMerger::mergeFiles(const QVector<QString>& inputFiles, const QString& outputFile, 
+                               Interpolator::InterpolationType interpolationType) {
+    QVector<FileMetadata> metadatas;
+    QVector<QChar> delimiters;
+
+    // 读取所有文件的元数据
+    for (const QString& file : inputFiles) {
+        QChar delimiter = DelimiterDetector::detectDelimiter(file);
+        FileMetadata metadata = FileReader::readFile(file, delimiter);
+        if (!metadata.headers.isEmpty()) {
+            metadatas.append(metadata);
+            delimiters.append(delimiter);
+        }
+    }
+
+    if (metadatas.isEmpty()) {
         return false;
     }
 
-    FileData fileData;
-    std::string line;
+    // 合并元数据
+    FileMetadata mergedMetadata = mergeMetadata(metadatas, interpolationType);
 
-    // 读取表头
-    if (std::getline(file, line)) {
-        std::istringstream ss(line);
-        std::string header;
-        while (ss >> header) {
-            fileData.headers.push_back(header);
-        }
-    }
-
-    // 读取数据
-    while (std::getline(file, line)) {
-        std::istringstream ss(line);
-        std::string timeStr;
-        if (!(ss >> timeStr)) {
-            continue;
-        }
-
-        TimePoint time;
-        if (!time.fromString(timeStr)) {
-            continue;
-        }
-
-        fileData.times.push_back(time);
-
-        std::vector<std::string> values;
-        std::string value;
-        while (ss >> value) {
-            values.push_back(value);
-        }
-        fileData.values.push_back(values);
-    }
-
-    fileDataList.push_back(fileData);
-    return true;
-}
-
-bool DataFileMerger::merge(const std::string& outputFilename, const std::string& delimiter) {
-    if (fileDataList.empty()) {
-        std::cerr << "No files added for merging" << std::endl;
+    // 写入输出文件
+    QFile outFile(outputFile);
+    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return false;
     }
 
-    // 准备输出文件
-    std::ofstream output(outputFilename);
-    if (!output.is_open()) {
-        std::cerr << "Error opening output file: " << outputFilename << std::endl;
-        return false;
-    }
-
-    // 收集所有时间点
-    std::vector<TimePoint> allTimes;
-    for (const auto& fileData : fileDataList) {
-        allTimes.insert(allTimes.end(), fileData.times.begin(), fileData.times.end());
-    }
-
-    // 去重并排序
-    std::sort(allTimes.begin(), allTimes.end());
-    auto last = std::unique(allTimes.begin(), allTimes.end());
-    allTimes.erase(last, allTimes.end());
+    QTextStream out(&outFile);
+    QChar delimiter = delimiters[0]; // 使用第一个文件的分隔符
 
     // 写入表头
-    for (size_t i = 0; i < fileDataList[0].headers.size(); ++i) {
-        if (i > 0) {
-            output << delimiter;
-        }
-        output << fileDataList[0].headers[i];
+    out << mergedMetadata.headers.join(delimiter) << "\n";
+
+    // 写入数据
+    for (const QStringList& row : mergedMetadata.data) {
+        out << row.join(delimiter) << "\n";
     }
 
-    for (size_t i = 1; i < fileDataList.size(); ++i) {
-        for (size_t j = 1; j < fileDataList[i].headers.size(); ++j) {
-            output << delimiter << fileDataList[i].headers[j];
-        }
-    }
-    output << std::endl;
-
-    // 处理每个时间点
-    for (const auto& time : allTimes) {
-        output << time.toString();
-
-        // 处理第一个文件（作为基准）
-        const auto& baseFile = fileDataList[0];
-        auto it = std::lower_bound(baseFile.times.begin(), baseFile.times.end(), time);
-        if (it != baseFile.times.end() && std::abs(*it - time) <= timeTolerance) {
-            size_t index = it - baseFile.times.begin();
-            for (const auto& value : baseFile.values[index]) {
-                output << delimiter << value;
-            }
-        } else {
-            // 时间点不在容差范围内，输出空值
-            for (size_t j = 0; j < baseFile.headers.size() - 1; ++j) {
-                output << delimiter << "";
-            }
-        }
-
-        // 处理其他文件
-        for (size_t i = 1; i < fileDataList.size(); ++i) {
-            const auto& fileData = fileDataList[i];
-            auto it = std::lower_bound(fileData.times.begin(), fileData.times.end(), time);
-
-            if (it != fileData.times.end() && std::abs(*it - time) <= timeTolerance) {
-                size_t index = it - fileData.times.begin();
-                for (const auto& value : fileData.values[index]) {
-                    output << delimiter << value;
-                }
-            } else if (it != fileData.times.begin() && std::abs(*(it - 1) - time) <= timeTolerance) {
-                size_t index = (it - 1) - fileData.times.begin();
-                for (const auto& value : fileData.values[index]) {
-                    output << delimiter << value;
-                }
-            } else {
-                // 时间点不在容差范围内，输出空值
-                for (size_t j = 0; j < fileData.headers.size() - 1; ++j) {
-                    output << delimiter << "";
-                }
-            }
-        }
-
-        output << std::endl;
-    }
-
-    output.close();
+    outFile.close();
     return true;
 }
 
-std::string DataFileMerger::detectDelimiter(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        return " "; // 默认空格
-    }
+FileMetadata DataFileMerger::mergeMetadata(const QVector<FileMetadata>& metadatas, 
+                                          Interpolator::InterpolationType interpolationType) {
+    FileMetadata result;
 
-    std::string line;
-    if (!std::getline(file, line)) {
-        return " ";
-    }
-
-    // 统计可能的分隔符
-    std::map<char, int> delimiterCount;
-    delimiterCount[','] = 0;
-    delimiterCount[';'] = 0;
-    delimiterCount['\t'] = 0;
-    delimiterCount[' '] = 0;
-
-    for (char c : line) {
-        if (delimiterCount.find(c) != delimiterCount.end()) {
-            delimiterCount[c]++;
+    // 构建输出表头
+    result.headers.append("Time");
+    for (const FileMetadata& metadata : metadatas) {
+        for (int i = 1; i < metadata.headers.size(); ++i) {
+            result.headers.append(metadata.headers[i]);
         }
     }
 
-    // 选择出现次数最多的分隔符
-    char bestDelimiter = ' ';
-    int maxCount = 0;
-    for (const auto& pair : delimiterCount) {
-        if (pair.second > maxCount) {
-            maxCount = pair.second;
-            bestDelimiter = pair.first;
+    // 提取每个文件的时间值映射
+    QVector<QMap<long long, QVector<double>>> timeValueMaps;
+    for (const FileMetadata& metadata : metadatas) {
+        timeValueMaps.append(extractTimeValueMap(metadata));
+    }
+
+    // 合并时间值映射
+    QMap<long long, QVector<double>> mergedMap = mergeTimeValueMaps(timeValueMaps);
+
+    // 为缺失的时间点插值
+    interpolateMissingValues(mergedMap, timeValueMaps, interpolationType);
+
+    // 转换为结果数据
+    for (auto it = mergedMap.constBegin(); it != mergedMap.constEnd(); ++it) {
+        QStringList row;
+        TimePoint timePoint = TimePoint::fromMilliseconds(it.key());
+        row.append(timePoint.toString());
+        
+        for (double value : it.value()) {
+            row.append(Interpolator::doubleToString(value));
+        }
+        
+        result.data.append(row);
+    }
+
+    return result;
+}
+
+QMap<long long, QVector<double>> DataFileMerger::extractTimeValueMap(const FileMetadata& metadata) {
+    QMap<long long, QVector<double>> map;
+
+    for (const QStringList& row : metadata.data) {
+        if (row.isEmpty()) continue;
+
+        // 解析时间
+        TimePoint timePoint = TimeParser::parse(row[0]);
+        long long timeMs = timePoint.toMilliseconds();
+
+        // 解析值
+        QVector<double> values;
+        for (int i = 1; i < row.size(); ++i) {
+            values.append(Interpolator::stringToDouble(row[i]));
+        }
+
+        map[timeMs] = values;
+    }
+
+    return map;
+}
+
+QMap<long long, QVector<double>> DataFileMerger::mergeTimeValueMaps(const QVector<QMap<long long, QVector<double>>>& maps) {
+    QMap<long long, QVector<double>> mergedMap;
+
+    // 收集所有时间点
+    QSet<long long> allTimes;
+    for (const QMap<long long, QVector<double>>& map : maps) {
+        for (long long time : map.keys()) {
+            allTimes.insert(time);
         }
     }
 
-    // 转换为字符串
-    switch (bestDelimiter) {
-        case '\t': return "\t";
-        case ',': return ",";
-        case ';': return ";";
-        default: return " ";
+    // 计算总列数
+    int totalColumns = 0;
+    for (const QMap<long long, QVector<double>>& map : maps) {
+        if (!map.isEmpty()) {
+            totalColumns += map.values().first().size();
+        }
+    }
+
+    // 初始化合并后的映射
+    for (long long time : allTimes) {
+        mergedMap[time] = QVector<double>(totalColumns, 0.0);
+    }
+
+    return mergedMap;
+}
+
+void DataFileMerger::interpolateMissingValues(QMap<long long, QVector<double>>& mergedMap, 
+                                             const QVector<QMap<long long, QVector<double>>>& originalMaps, 
+                                             Interpolator::InterpolationType interpolationType) {
+    int columnOffset = 0;
+
+    for (const QMap<long long, QVector<double>>& map : originalMaps) {
+        if (map.isEmpty()) continue;
+
+        int numColumns = map.values().first().size();
+
+        // 提取时间点和对应的值
+        QVector<double> times;
+        QVector<QVector<double>> valuesList(numColumns);
+
+        for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
+            times.append(it.key());
+            for (int i = 0; i < numColumns; ++i) {
+                valuesList[i].append(it.value()[i]);
+            }
+        }
+
+        // 为每个时间点插值
+        for (auto it = mergedMap.begin(); it != mergedMap.end(); ++it) {
+            long long time = it.key();
+            QVector<double>& values = it.value();
+
+            // 检查是否有原始值
+            if (map.contains(time)) {
+                const QVector<double>& originalValues = map[time];
+                for (int i = 0; i < numColumns; ++i) {
+                    values[columnOffset + i] = originalValues[i];
+                }
+            } else {
+                // 插值
+                for (int i = 0; i < numColumns; ++i) {
+                    values[columnOffset + i] = Interpolator::interpolate(times, valuesList[i], time, interpolationType);
+                }
+            }
+        }
+
+        columnOffset += numColumns;
     }
 }
