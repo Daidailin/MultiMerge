@@ -1,101 +1,72 @@
 #include "FileReader.h"
-#include "../core/time/TimePoint.h"
-#include <fstream>
-#include <sstream>
-#include <iostream>
+#include <QFile>
+#include <QTextStream>
 
-FileReader::FileReader(const std::string& filename, const std::string& delimiter) 
-    : filename(filename), delimiter(delimiter) {}
-
-bool FileReader::readFile(std::vector<std::vector<std::string>>& data, std::vector<std::string>& headers) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return false;
+FileMetadata FileReader::readFile(const QString& filePath, QChar delimiter) {
+    FileMetadata metadata;
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return metadata;
     }
 
-    std::string line;
-    bool firstLine = true;
-
-    while (std::getline(file, line)) {
-        std::istringstream ss(line);
-        std::vector<std::string> row;
-        std::string token;
-
-        while (std::getline(ss, token, delimiter[0])) {
-            // 移除前后空格
-            size_t start = token.find_first_not_of(" ");
-            size_t end = token.find_last_not_of(" ");
-            if (start != std::string::npos && end != std::string::npos) {
-                token = token.substr(start, end - start + 1);
-            }
-            row.push_back(token);
-        }
-
-        if (firstLine) {
-            headers = row;
-            firstLine = false;
-        } else {
-            data.push_back(row);
+    QTextStream in(&file);
+    
+    // 读取表头
+    QString headerLine = in.readLine();
+    if (!headerLine.isEmpty()) {
+        metadata.headers = headerLine.split(delimiter);
+    }
+    
+    // 读取数据
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (!line.isEmpty()) {
+            QStringList fields = line.split(delimiter);
+            metadata.data.append(fields);
         }
     }
-
+    
     file.close();
-    return true;
+    return metadata;
 }
 
-bool FileReader::readFileWithTime(std::vector<long long>& times, std::vector<std::vector<std::string>>& data, std::vector<std::string>& headers) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return false;
+QStringList FileReader::readHeaders(const QString& filePath, QChar delimiter) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return QStringList();
     }
 
-    std::string line;
-    bool firstLine = true;
-
-    while (std::getline(file, line)) {
-        std::istringstream ss(line);
-        std::vector<std::string> row;
-        std::string token;
-
-        while (std::getline(ss, token, delimiter[0])) {
-            // 移除前后空格
-            size_t start = token.find_first_not_of(" ");
-            size_t end = token.find_last_not_of(" ");
-            if (start != std::string::npos && end != std::string::npos) {
-                token = token.substr(start, end - start + 1);
-            }
-            row.push_back(token);
-        }
-
-        if (firstLine) {
-            headers = row;
-            firstLine = false;
-        } else if (!row.empty()) {
-            // 解析时间列
-            TimePoint time;
-            if (time.fromString(row[0])) {
-                times.push_back(time.getTotalMilliseconds());
-                // 移除时间列，只保留数据
-                if (row.size() > 1) {
-                    row.erase(row.begin());
-                    data.push_back(row);
-                } else {
-                    data.push_back({});
-                }
-            }
-        }
-    }
-
+    QTextStream in(&file);
+    QString headerLine = in.readLine();
     file.close();
-    return true;
+    
+    if (!headerLine.isEmpty()) {
+        return headerLine.split(delimiter);
+    }
+    return QStringList();
 }
 
-void FileReader::setDelimiter(const std::string& delimiter) {
-    this->delimiter = delimiter;
-}
+QVector<QStringList> FileReader::readData(const QString& filePath, QChar delimiter) {
+    QVector<QStringList> data;
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return data;
+    }
 
-std::string FileReader::getDelimiter() const {
-    return delimiter;
+    QTextStream in(&file);
+    
+    // 跳过表头
+    in.readLine();
+    
+    // 读取数据
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (!line.isEmpty()) {
+            QStringList fields = line.split(delimiter);
+            data.append(fields);
+        }
+    }
+    
+    file.close();
+    return data;
 }
